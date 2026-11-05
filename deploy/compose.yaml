@@ -1,0 +1,24 @@
+# Copy to /volume1/docker/filetop-reporter/compose.yaml on the NAS.
+services:
+  filetop-reporter:
+    image: ghcr.io/dansimau/filetop-reporter:latest
+    container_name: filetop-reporter
+    # bpf(), perf_event_open and tracefs writes all need CAP_SYS_ADMIN on 4.4.
+    privileged: true
+    # Host pid namespace: /proc/<pid>/cgroup is how pids map to containers.
+    pid: host
+    environment:
+      - TZ=Etc/UTC  # set to your local zone; reports roll over at local midnight
+      - SENTINEL_HOST_PATH=/volume1/docker/filetop-reporter/data/.sentinel
+    volumes:
+      # tracefs lives under debugfs on DSM; kprobes are created through it.
+      - /sys/kernel/debug:/sys/kernel/debug
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Maps container ids to their btrfs rootfs subvolume ids.
+      - /volume1/@docker/image/btrfs/layerdb/mounts:/host/layerdb:ro
+      # chattr +C this directory first (SQLite on btrfs).
+      - /volume1/docker/filetop-reporter/data:/data
+      - /volume1/docker/filetop-reporter/reports:/reports
+    logging:
+      driver: local
+    restart: always

@@ -1,0 +1,7 @@
+# Copy to local.mk (gitignored) and adjust for your own NAS.
+# ssh host (or alias from ~/.ssh/config) of the Synology box.
+NAS = nas
+# Where the tree is rsynced to and built on the NAS.
+# NAS_DIR = /volume1/docker/filetop-reporter/build
+# Docker binary on the NAS; DSM needs sudo for it.
+# DOCKER_NAS = sudo /usr/local/bin/docker

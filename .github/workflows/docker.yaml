@@ -1,0 +1,29 @@
+name: Build and push docker image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate with GitHub container registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build
+        run: make docker
+
+      - name: Push
+        run: |
+          docker tag filetop-reporter ghcr.io/dansimau/filetop-reporter:latest
+          docker push ghcr.io/dansimau/filetop-reporter:latest
